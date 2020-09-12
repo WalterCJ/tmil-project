@@ -1,11 +1,13 @@
 import "jest";
 import * as request from "supertest";
 
-let address: string = (<any>global).address;
+const address: string = (<any>global).address;
+const auth: string = (<any>global).auth;
 
 test("get /users", () => {
   return request(address)
     .get("/users")
+    .set("Authorization", auth)
     .then((response) => {
       expect(response.status).toBe(200);
       expect(response.body).toBeInstanceOf(Array);
@@ -15,6 +17,7 @@ test("get /users", () => {
 test("get /users/123 - not found", () => {
   return request(address)
     .get("/users/123")
+    .set("Authorization", auth)
     .then((response) => {
       expect(response.status).toBe(404);
     })
@@ -24,6 +27,7 @@ test("get /users/123 - not found", () => {
 test("post /users", () => {
   return request(address)
     .post("/users")
+    .set("Authorization", auth)
     .send({
       name: "user1",
       email: "user1@email.com",
@@ -41,6 +45,7 @@ test("post /users", () => {
 test("post /users - name is required", () => {
   return request(address)
     .post("/users")
+    .set("Authorization", auth)
     .send({
       email: "user_test@gmail.com",
       password: "123456",
@@ -55,6 +60,7 @@ test("post /users - name is required", () => {
 test("post /users - email duplicado", () => {
   return request(address)
     .post("/users")
+    .set("Authorization", auth)
     .send({
       name: "dupe",
       email: "dupe@gmail.com",
@@ -77,12 +83,17 @@ test("post /users - email duplicado", () => {
 test("delete /users/:id", () => {
   return request(address)
     .post("/users")
+    .set("Authorization", auth)
     .send({
       name: "usuario 3",
       email: "user3@gmail.com",
       password: "secret123",
     })
-    .then((response) => request(address).delete(`/users/${response.body._id}`))
+    .then((response) =>
+      request(address)
+        .delete(`/users/${response.body._id}`)
+        .set("Authorization", auth)
+    )
     .then((response) => {
       expect(response.status).toBe(204);
     })
@@ -91,6 +102,7 @@ test("delete /users/:id", () => {
 test("delete /users/123 - not found", () => {
   return request(address)
     .delete(`/users/123`)
+    .set("Authorization", auth)
     .then((response) => {
       expect(response.status).toBe(404);
     })
@@ -100,6 +112,7 @@ test("delete /users/123 - not found", () => {
 test("put /users/aaaaa - not found", () => {
   return request(address)
     .put(`/users/123`)
+    .set("Authorization", auth)
     .then((response) => {
       expect(response.status).toBe(404);
     })
@@ -108,17 +121,21 @@ test("put /users/aaaaa - not found", () => {
 test("put /users:/id", () => {
   return request(address)
     .post("/users")
+    .set("Authorization", auth)
     .send({
       name: "usuario 4",
       email: "user4@gmail.com",
       password: "123456",
     })
     .then((response) =>
-      request(address).put(`/users/${response.body._id}`).send({
-        name: "usuario 5",
-        email: "user5@gmail.com",
-        password: "1234567890",
-      })
+      request(address)
+        .put(`/users/${response.body._id}`)
+        .send({
+          name: "usuario 5",
+          email: "user5@gmail.com",
+          password: "1234567890",
+        })
+        .set("Authorization", auth)
     )
     .then((response) => {
       expect(response.status).toBe(200);

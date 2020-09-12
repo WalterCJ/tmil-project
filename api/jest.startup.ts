@@ -16,6 +16,14 @@ const beforeAllTests = () => {
   return server
     .bootstrap([usersRouter, activityRouter])
     .then(() => User.remove({}).exec())
+    .then(() => {
+      let admin = new User();
+      admin.name = "admin";
+      admin.email = "admin@email.com";
+      admin.password = "1234567";
+      admin.profiles = ["admin", "user"];
+      return admin.save();
+    })
     .then(() => Activity.remove({}).exec());
 };
 
