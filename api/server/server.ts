@@ -21,10 +21,12 @@ export class Server {
   initRoutes(routers: Router[]): Promise<any> {
     return new Promise((resolve, reject) => {
       try {
-        this.application = restify.createServer({
+        const options: restify.ServerOptions = {
           name: "tmil-api",
           version: "1.0.0",
-        });
+        };
+
+        this.application = restify.createServer(options);
 
         this.application.use(restify.plugins.queryParser());
         this.application.use(restify.plugins.bodyParser());
