@@ -3,6 +3,7 @@ import * as mongoose from "mongoose";
 
 import { environment } from "../common/environment";
 import { Router } from "../common/router";
+import { logger } from "../common/logger";
 import { mergePatchBodyParser } from "./merge-patch.parser";
 import { handleError } from "./error.handler";
 import { tokenParser } from "../security/token.parser";
@@ -24,9 +25,16 @@ export class Server {
         const options: restify.ServerOptions = {
           name: "tmil-api",
           version: "1.0.0",
+          log: logger,
         };
 
         this.application = restify.createServer(options);
+
+        this.application.pre(
+          restify.plugins.requestLogger({
+            log: logger,
+          })
+        );
 
         this.application.use(restify.plugins.queryParser());
         this.application.use(restify.plugins.bodyParser());
